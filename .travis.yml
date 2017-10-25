@@ -7,8 +7,6 @@ services:
 
 before_install:
 - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
-- export GIT_SHORT_TAG=$(git rev-parse --short HEAD)
-- export IMAGE="containerum/helloworld-webhook:$GIT_SHORT_TAG"
 
 script:
 - docker build -t containerum/helloworld-webhook:"$TRAVIS_COMMIT" .
