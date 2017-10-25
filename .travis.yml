@@ -1,0 +1,17 @@
+sudo: required
+
+services:
+  - docker
+
+jobs:
+  include:
+    - stage: build docker image
+      script: docker build -t $DOCKER_USERNAME/helloworld-webhook:$TRAVIS_COMMIT .
+    - stage: push docker image
+      script:
+          - if [ "$TRAVIS_BRANCH" == "master" ]; then
+            docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
+            docker push $DOCKER_USERNAME/helloworld-webhook:$TRAVIS_COMMIT;
+            fi
+    # - stage: set deploy image
+    #   script:
