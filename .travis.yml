@@ -1,17 +1,16 @@
 sudo: required
 
+language: php
+
 services:
   - docker
 
-jobs:
-  include:
-    - stage: build docker image
-      script:
-      - docker build -t containerum/helloworld-webhook:"$TRAVIS_COMMIT" .
-      - docker images
-    - stage: push docker image
-      script:
-          - if [ "$TRAVIS_BRANCH" == "master" ]; then
-              docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
-              docker push containerum/helloworld-webhook:"$TRAVIS_COMMIT";
-            fi
+before_install:
+- docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+
+script:
+- docker build -t containerum/helloworld-webhook:"$TRAVIS_COMMIT" .
+- docker push containerum/helloworld-webhook:"$TRAVIS_COMMIT"
+
+# after_success:
+# -
