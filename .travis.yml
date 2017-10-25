@@ -12,5 +12,13 @@ script:
 - docker build -t containerum/helloworld-webhook:"$TRAVIS_COMMIT" .
 - docker push containerum/helloworld-webhook:"$TRAVIS_COMMIT"
 
-# after_success:
-# -
+after_success:
+- curl -X POST \
+    https://web.api.containerum.io:5000/api/set/image/"$CONTAINERUM_WEBHOOK" \
+    -H 'content-type: application/json' \
+    -d '{
+      "image": "containerum/helloworld-webhook:$TRAVIS_COMMIT",
+      "deployment_name": "hello-webhook",
+      "namespace": "mmmmm",
+      "container_name": "hello-webhook"
+    }'
