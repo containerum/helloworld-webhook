@@ -13,12 +13,15 @@ script:
 - docker push containerum/helloworld-webhook:"$TRAVIS_COMMIT"
 
 after_success:
+- export GIT_SHORT_TAG=$(git rev-parse --short HEAD)
+- export IMAGE="containerum/helloworld-webhook:$GIT_SHORT_TAG"
+- echo $IMAGE
 - |
   curl -X POST \
   https://web.api.containerum.io:5000/api/set/image/"$CONTAINERUM_WEBHOOK" \
   -H 'content-type: application/json' \
   -d '{
-  "image": "containerum/helloworld-webhook:"$TRAVIS_COMMIT"",
+  "image": "$IMAGE",
   "deployment_name": "hello-webhook",
   "namespace": "mmmmm",
   "container_name": "hello-webhook"
