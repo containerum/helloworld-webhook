@@ -9,10 +9,12 @@ language:
 jobs:
   include:
     - stage: build docker image
-      script: docker build -t containerum/helloworld-webhook:$TRAVIS_COMMIT .
+      script:
+      - docker build -t containerum/helloworld-webhook:$TRAVIS_COMMIT .
+      - docker images
     - stage: push docker image
       script:
           - if [ "$TRAVIS_BRANCH" == "master" ]; then
-            docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
-            docker push containerum/helloworld-webhook:$TRAVIS_COMMIT;
+              docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
+              docker push containerum/helloworld-webhook:$TRAVIS_COMMIT;
             fi
