@@ -20,6 +20,6 @@ after_success:
   -d '{
   "image": "containerum/helloworld-webhook:'"$TRAVIS_COMMIT"'",
   "deployment_name": "hello-webhook",
-  "namespace": "mmmmm",
+  "namespace": "ten",
   "container_name": "hello-webhook"
   }'
