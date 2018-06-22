@@ -1,25 +1,52 @@
 sudo: required
 
-language: php
+env:
+  global:
+  - CHKIT_VERSION=v3.2.0
+  - IMAGE_NAME=containerum/docs
+  - DEPLOY=documentation
+  - CONTAINER=docs
 
 services:
   - docker
 
-before_install:
-- docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+install:
+  - wget https://github.com/containerum/chkit/releases/download/${CHKIT_VERSION}/chkit_linux_amd64_${CHKIT_VERSION}.tar.gz
+  - tar -zxf chkit_linux_amd64_${CHKIT_VERSION}.tar.gz && sudo mv chkit /bin/chkit
 
 script:
-- docker build -t containerum/helloworld-webhook:"$TRAVIS_COMMIT" .
-- docker push containerum/helloworld-webhook:"$TRAVIS_COMMIT"
+  - chkit get api
+  - chkit login -u ${LOGIN} -p ${PASSWORD} -n -
+  - docker build -t "$IMAGE_NAME" .
 
-after_success:
-- |
-  curl -X POST \
-  https://web.api.containerum.io:5000/api/set/image/"$CONTAINERUM_WEBHOOK" \
-  -H 'content-type: application/json' \
-  -d '{
-  "image": "containerum/helloworld-webhook:'"$TRAVIS_COMMIT"'",
-  "deployment_name": "hello-webhook",
-  "namespace": "ten",
-  "container_name": "hello-webhook"
-  }'
+before_deploy:
+  - docker login -u="$DOCKER_LOGIN" -p="$DOCKER_PASSWORD"
+  - docker tag "$IMAGE_NAME" "${IMAGE_NAME}:latest"
+  - docker tag "$IMAGE_NAME" "${IMAGE_NAME}:release"
+  - docker tag "$IMAGE_NAME" "${IMAGE_NAME}:${TRAVIS_COMMIT::8}"
+  - if [ "$TRAVIS_TAG" ]; then docker tag "$IMAGE_NAME" "${IMAGE_NAME}:${TRAVIS_TAG}"; fi
+
+deploy:
+  - provider: script
+    script:
+      - docker push "${IMAGE_NAME}:latest"
+      - docker push "${IMAGE_NAME}:${TRAVIS_TAG}"
+    skip_cleanup: true
+    on:
+      tags: true
+  - provider: script
+    script: chkit set image --deployment ${DEPLOY} --image "${IMAGE_NAME}:${TRAVIS_TAG}" --force
+    skip_cleanup: true
+    on:
+      tags: true
+
+  - provider: script
+    script: docker push "${IMAGE_NAME}:release" && docker push "${IMAGE_NAME}:${TRAVIS_COMMIT::8}"
+    skip_cleanup: true
+    on:
+      branch: master
+  - provider: script
+    script: chkit set image --deployment ${DEPLOY} --image "${IMAGE_NAME}:${TRAVIS_COMMIT::8}" --force
+    skip_cleanup: true
+    on:
+      branch: master
