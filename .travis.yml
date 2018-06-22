@@ -37,7 +37,7 @@ deploy:
       tags: true
 
   - provider: script
-    script: docker push "${IMAGE_NAME}:release" && docker push "${IMAGE_NAME}:${TRAVIS_COMMIT::8}"
+    script: docker push "${IMAGE_NAME}:latest" && docker push "${IMAGE_NAME}:${TRAVIS_COMMIT::8}"
     skip_cleanup: true
     on:
       branch: master
