@@ -1,12 +1,5 @@
 sudo: required
 
-env:
-  global:
-  - CHKIT_VERSION=v3.2.0
-  - IMAGE_NAME=containerum/docs
-  - DEPLOY=documentation
-  - CONTAINER=docs
-
 services:
   - docker
 
