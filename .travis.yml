@@ -22,13 +22,16 @@ before_deploy:
 deploy:
   - provider: script
     script:
+      - echo "deploy 1"
       - docker push "${IMAGE_NAME}:latest"
       - docker push "${IMAGE_NAME}:${TRAVIS_TAG}"
     skip_cleanup: true
     on:
       tags: true
   - provider: script
-    script: chkit set image --deployment ${DEPLOY} --image "${IMAGE_NAME}:${TRAVIS_TAG}" --force
+    script:
+      - echo "deploy 2"
+      - chkit set image --deployment ${DEPLOY} --image "${IMAGE_NAME}:${TRAVIS_TAG}" --force
     skip_cleanup: true
     on:
       tags: true
